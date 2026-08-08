@@ -1,18 +1,32 @@
 import os
-from sqlmodel import create_engine, Session, SQLModel
+
 from dotenv import load_dotenv
+from sqlmodel import Session, SQLModel, create_engine
 
-load_dotenv(override=True)
+load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-print(f"DEBUG: Attempting to connect to: {DATABASE_URL}")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///./app.db"
+)
 
-engine = create_engine(DATABASE_URL, echo=True)
+connect_args = (
+    {"check_same_thread": False}
+    if DATABASE_URL.startswith("sqlite")
+    else {}
+)
 
-# Ensure this function is defined at the same indentation level as the other functions
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+engine = create_engine(
+    DATABASE_URL,
+    echo=False,
+    connect_args=connect_args
+)
+
 
 def get_session():
     with Session(engine) as session:
         yield session
+
+
+def create_tables():
+    SQLModel.metadata.create_all(engine)
