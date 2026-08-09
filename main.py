@@ -55,6 +55,11 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         content={"error": True, "message": exc.detail},
         headers=getattr(exc, "headers", None),
     )
+from fastapi.responses import RedirectResponse
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="/docs")
 
 
 # This is the validation error handler.
